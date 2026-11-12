@@ -1,4 +1,4 @@
-# 1. Breast Cancer Classification - Model Building, Predictor Selection and Validation - Python 
+# 1. Breast Cancer Classification - Model Building, Predictor Selection and Validation - Python
 
 A complete, leakage-aware machine learning pipeline for classifying breast tumors as malignant or benign. It is built not just to chase accuracy, but to produce a model whose feature selection and decision threshold can actually be defended and explained.
 
@@ -6,7 +6,7 @@ A complete, leakage-aware machine learning pipeline for classifying breast tumor
 
 - **Dataset:** Wisconsin Diagnostic Breast Cancer dataset (569 samples, 30 morphological features extracted from digitized biopsy images)
 - **Task:** binary classification — malignant vs. benign tissue
-- **Focus:** this project prioritizes methodological rigor over a single headline number : handling multicollinearity properly, validating feature selection stability, and choosing a decision threshold aligned with clinical priorities
+- **Focus:** methodological rigor over a single headline number: handling multicollinearity properly, validating feature selection stability, and choosing a decision threshold aligned with clinical priorities
 
 ## Results at a glance
 
@@ -18,73 +18,105 @@ A complete, leakage-aware machine learning pipeline for classifying breast tumor
 | Specificity | 98.6% |
 | Features used | 12 (reduced from 30) |
 
-## Methodology
+## Approach
 
-1. **Exploratory analysis & correlation screening**: identified strong multicollinearity among size-related features (radius, perimeter, area are mathematically redundant); manually removed 9 redundant features before modeling.
-2. **Model comparison** : benchmarked 6 classifiers (Logistic Regression, KNN, Linear/RBF SVM, Random Forest, Gradient Boosting) via 10-fold stratified cross-validation. Logistic Regression was selected for its interpretability, at no measurable cost in performance.
-3. **Regularization comparison** : compared L1, L2, and Elastic Net penalties; L1 produced the sparsest model (12 features) with no loss in ROC-AUC.
-4. **Threshold optimization** : compared a balanced (Youden) threshold against a minimum-sensitivity target, and selected the final threshold based on its best compromise between sensitivity and specificity.
-5. **Feature stability validation** : bootstrap-resampled the L1 feature selection (200 iterations) to separate genuinely robust predictors from features that only appeared due to one particular data split.
-
-## Skills demonstrated
-
-- **Statistical rigor:** multicollinearity diagnosis, correlation-based feature reduction, nested cross-validation, bootstrap stability analysis
-- **Machine learning:** regularized logistic regression (L1/L2/Elastic Net), systematic model benchmarking, hyperparameter tuning via GridSearchCV
-- **Clinical decision-analytic thinking:** sensitivity/specificity trade-offs, threshold selection aligned to domain priorities, separation of cross-validated vs. held-out performance
-- **Reproducible pipeline design:** leakage-safe workflow throughout (correlation computed on training data only, scaling fit within pipeline folds, thresholds chosen from training CV and applied once to a held-out test set)
+1. **Exploratory analysis and correlation screening:** identified strong multicollinearity among size-related features (radius, perimeter, area are mathematically redundant); manually removed 9 redundant features before modeling, using training data only.\
+   → *Multicollinearity diagnosis, correlation-based feature reduction, leakage-safe workflow*
+2. **Model comparison:** benchmarked 6 classifiers (Logistic Regression, KNN, Linear/RBF SVM, Random Forest, Gradient Boosting) via 10-fold stratified cross-validation, with scaling fit within pipeline folds. Logistic Regression was selected for its interpretability, at no measurable cost in performance.\
+   → *Systematic model benchmarking, cross-validation, scikit-learn pipelines*
+3. **Regularization comparison:** compared L1, L2 and Elastic Net penalties; L1 produced the sparsest model (12 features) with no loss in ROC-AUC.\
+   → *Regularized logistic regression, hyperparameter tuning (GridSearchCV), nested cross-validation*
+4. **Threshold optimization:** compared a balanced (Youden) threshold against a minimum-sensitivity target, and selected the final threshold based on its best compromise between sensitivity and specificity. Chosen from training CV, then applied once to a held-out test set.\
+   → *Clinical decision-analytic thinking, sensitivity/specificity trade-offs, cross-validated vs. held-out performance*
+5. **Feature stability validation:** bootstrap-resampled the L1 feature selection (200 iterations) to separate genuinely robust predictors from features that only appeared due to one particular data split.\
+   → *Bootstrap stability analysis*
 
 ## Tech stack
 
 Python · scikit-learn · pandas · NumPy · matplotlib
 
-## File
+## Files
 
-Predictive_model_on_breast_cancer.ipynb — full analysis notebook
+- `1. Predictive_model_on_breast_cancer.ipynb` — full analysis notebook
 
+---
 
+# 2. Palmer Penguins - Data Cleaning, Visualization and Statistical Inference - R
 
-# 2. Palmer Penguins - Data Cleaning, Visualisation and Statistical Inference - R 
-A reproducible R workflow showing how I handle a fresh dataset: checked cleaning decisions, the right summary for each variable type, and tests chosen from verified assumptions.
+A reproducible R workflow showing how to handle a fresh dataset: checked cleaning decisions, the right summary for each variable type, and tests chosen from verified assumptions.
 
 ## Overview
-Dataset: Palmer Penguins (344 penguins, 3 species, 4 body measurements plus sex and year)
 
-## Methodology
-Cleaning : missing values per variable, the 2 empty rows identified by code, birds of unknown sex kept, range check on every numeric variable.
-Description and visualisation : counts for categorical variables, mean ± SD and median (Q1/Q3) per species for continuous ones; density, scatter and violin plots, including a textbook Simpson's paradox on bill shape.
-Inference : Shapiro–Wilk normality check, ANOVA and Kruskal–Wallis side by side, Tukey post hoc, Welch t-test, chi-square, Pearson correlation.
+- **Dataset:** Palmer Penguins (344 penguins, 3 species, 4 body measurements plus sex and year)
+- **Task:** clean and describe the data, visualize species differences, then test them statistically
+- **Focus:** assumption checks before every test, with parametric and non-parametric results reported side by side
 
-## Skills demonstrated
-Statistical rigor: assumption checking, omnibus vs post hoc tests, confounding and Simpson's paradox
-Data wrangling in R: tidyverse pipelines (dplyr, tidyr, purrr), long/wide reshaping
-Visualisation: ggplot2, patchwork
-Reproducible reporting: Quarto, flextable, everything loaded from packages
+## Results at a glance
+
+| Question | Test | Result |
+|---|---|---|
+| Do body measurements differ between species? | ANOVA, Kruskal–Wallis, Tukey post hoc | Yes: Gentoo differ from both other species on every measurement; Adelie and Chinstrap differ only by bill length |
+| Are Gentoo males heavier than females? | Welch t-test | Yes, by ~800 g (95% CI 700–910 g, p < 0.001) |
+| Is sex balanced across species? | Chi-square test of independence | Yes (p = 0.98) |
+| Are flipper length and body mass linked? | Pearson correlation | Strong positive correlation (r = 0.87, 95% CI 0.84–0.89) |
+| Are bill length and bill depth linked? | Scatter plots, pooled vs by species | Negative when pooled, positive within each species (Simpson's paradox) |
+
+## Approach
+
+1. **Cleaning:** missing values per variable, the 2 empty rows identified by code and dropped, birds of unknown sex kept, range check on every numeric variable.\
+   → *Data wrangling in R: tidyverse pipelines (dplyr, tidyr, purrr)*
+2. **Description and visualization:** counts for categorical variables, mean ± SD and median (Q1/Q3) per species for continuous ones; density, scatter and violin plots, including a textbook Simpson's paradox on bill shape.\
+   → *ggplot2, patchwork, long/wide reshaping, confounding and Simpson's paradox*
+3. **Inference:** Shapiro–Wilk normality check, ANOVA and Kruskal–Wallis side by side, Tukey post hoc, Welch t-test, chi-square, Pearson correlation.\
+   → *Assumption checking, omnibus vs post hoc tests, reproducible reporting (Quarto, flextable)*
 
 ## Tech stack
+
 R · tidyverse · Quarto · flextable · patchwork · ggbeeswarm · wrappedtools
 
-## File/ Repository
-Data_Cleaning_Visualisation_Statistical_Inference.md — rendered results, viewable on GitHub
-Data_Cleaning_Visualisation_Statistical_Inference_files — tables and graphs used by .md file
+## Files
 
+- `2. Data_Cleaning_Visualisation_Statistical_Inference.md` — rendered results, viewable on GitHub
+- `Data_Cleaning_Visualisation_Statistical_Inference_files/` — tables and graphs used by the .md file
 
-# 3. SQL Exercises
+---
 
-## Overview : 
-This file contains MySQL exercises focused on relational database design and basic SQL programming and was created to practice structuring relational databases and applying SQL concepts to scientific datasets.
-Two example databases are included: a **laboratory database** for experiments, employees, tools, and results, and a **greenhouse database** for plants, gardeners, and greenhouse management.
+# 3. Laboratory and Greenhouse Databases - Database Design and Stored Procedures - SQL
 
-## Skills demonstrated
+MySQL exercises focused on relational database design and basic SQL programming, created to practice structuring relational databases and applying SQL concepts to scientific datasets.
 
-* Creation of databases and tables
-* Primary and foreign keys
-* Constraints such as `CHECK`, `UNIQUE`, and `NOT NULL`
-* Many-to-many relationships
-* Stored procedures
-* Subqueries and filtering
+## Overview
 
-## File
-SQL_Stored_Procedures_and_Database_Creation (code only)  
+- **Dataset:** two databases built from scratch — a **laboratory database** (experiments, employees, tools, results) and a **greenhouse database** (plants, gardeners, greenhouses) — plus stored procedures on a protein-structure database
+- **Task:** design the tables, link them with keys, and write reusable queries
+- **Focus:** clean relational design, with data integrity enforced by constraints
+
+## Databases at a glance
+
+| Database | Tables | Highlights |
+|---|---|---|
+| Laboratory | 7 (incl. 3 linking tables) | Experiments linked to employees, tools and results (many-to-many) |
+| Greenhouse | 5 (incl. 2 linking tables) | Gardeners and plants linked to greenhouses (many-to-many) |
+| Protein structures | queried only | 7 stored procedures, incl. subqueries |
+
+## Approach
+
+1. **Stored procedures:** wrote reusable procedures to query organisms, proteins and structures, using filters and subqueries.\
+   → *Stored procedures, subqueries and filtering*
+2. **Database design:** created the laboratory and greenhouse databases, with primary keys, foreign keys and linking tables for many-to-many relationships.\
+   → *Relational database design, primary and foreign keys, many-to-many relationships*
+3. **Data integrity:** added `CHECK`, `UNIQUE`, `NOT NULL` and `DEFAULT` constraints (e.g. e-mail format, positive salaries, allowed weekdays).\
+   → *Data validation with constraints*
+
+## Tech stack
+
+SQL · MySQL
+
+## Files
+
+- `3. SQL-Stored_Procedures_and_Database-Creation.sql` — SQL code only
+
+---
 
 # 4. Crime Incidents - Data Cleaning, Exploration and Statistical Analysis - Python
 
@@ -92,7 +124,7 @@ A Python workflow applied to a messy, simulated crime dataset: from raw data wit
 
 ## Overview
 
-- **Dataset:** simulated crime incident dataset from Kaggle [(https://www.kaggle.com/datasets/sananshaikh/messy-crime-dataset-for-data-cleaning-practice)], 5,250 records describing crimes, locations, victims, suspects, officers, arrests, property loss and case status
+- **Dataset:** simulated crime incident dataset from [Kaggle](https://www.kaggle.com/datasets/sananshaikh/messy-crime-dataset-for-data-cleaning-practice), 5,250 records describing crimes, locations, victims, suspects, officers, arrests, property loss and case status
 - **Task:** clean the raw data, then use it to answer three analysis questions
 - **Focus:** transparent cleaning decisions, checks before and after each transformation, and statistical tests chosen to fit the data
 
@@ -107,16 +139,6 @@ A Python workflow applied to a messy, simulated crime dataset: from raw data wit
 | Impossible values (negative numbers, ages up to 298, latitudes > 90) | Sign corrected or set to missing | 331 ages and 176 coordinates set to missing |
 | Missing victim/suspect gender | Inferred from first names (`gender-guesser`) | 1,964 values imputed and flagged |
 
-## Methodology
-
-1. **Initial data audit:** inspected datatypes, missing values, duplicates, categorical levels and numeric ranges to identify the main data-quality problems.
-2. **Text and datatype standardization:** trimmed whitespace, standardized capitalization, stored identifiers as text and converted wrongly stored numbers to numeric values.
-3. **Categorical cleaning:** detected spelling errors by string similarity, reviewed every suggested correction manually, harmonized abbreviations and synonyms, and grouped crime types into four broad categories.
-4. **Missing-data handling:** assessed missingness variable by variable instead of applying one imputation rule; imputed gender from first names with explicit imputation and uncertainty flags, and left other missing values as missing.
-5. **Numeric and geographic validation:** checked distributions and plausible ranges, corrected sign errors and set impossible values to missing.
-6. **Date and time preprocessing:** split date and time, standardized three date formats, and created time-of-day and season variables.
-7. **Exploration and analysis:** described the main variables (summary statistics, bar charts, histograms), then answered three questions with statistical tests. Numeric variables are not normally distributed, so non-parametric tests were used where needed.
-
 ## Results at a glance
 
 | Question | Test | Result |
@@ -127,23 +149,32 @@ A Python workflow applied to a messy, simulated crime dataset: from raw data wit
 | Do incidents vary by season? | Chi-square goodness-of-fit | No (p = 0.32) |
 | Is crime severity linked to property loss? | Kruskal–Wallis, Spearman correlation | No (p = 0.79; ρ = 0.01, p = 0.39) |
 
-## Skills demonstrated
+## Approach
 
-- **Data cleaning:** duplicate detection, datatype conversion, string normalization, range validation, handling of mixed date formats
-- **Categorical preprocessing:** typo detection, synonym harmonization, category grouping and manual quality control
-- **Missing-data handling:** variable-by-variable assessment, selective imputation with explicit flags
-- **Feature engineering:** time-of-day and season variables derived from raw timestamps
-- **Statistics:** chi-square tests, Poisson regression for count data, non-parametric tests (Kruskal–Wallis, Spearman) chosen after checking distributions
-- **Visualization:** bar charts, histograms, box plots and trend plots with matplotlib
+1. **Initial data audit:** inspected datatypes, missing values, duplicates, categorical levels and numeric ranges to identify the main data-quality problems.\
+   → *Data quality assessment, duplicate detection*
+2. **Text and datatype standardization:** trimmed whitespace, standardized capitalization, stored identifiers as text and converted wrongly stored numbers to numeric values.\
+   → *String normalization, datatype conversion*
+3. **Categorical cleaning:** detected spelling errors by string similarity, reviewed every suggested correction manually, harmonized abbreviations and synonyms, and grouped crime types into four broad categories.\
+   → *Typo detection, synonym harmonization, manual quality control*
+4. **Missing-data handling:** assessed missingness variable by variable instead of applying one imputation rule; imputed gender from first names with explicit imputation and uncertainty flags, and left other missing values as missing.\
+   → *Selective imputation with explicit flags*
+5. **Numeric and geographic validation:** checked distributions and plausible ranges, corrected sign errors and set impossible values to missing.\
+   → *Range validation*
+6. **Date and time preprocessing:** split date and time, standardized three date formats, and created time-of-day and season variables.\
+   → *Mixed date formats, feature engineering*
+7. **Exploration and analysis:** described the main variables (summary statistics, bar charts, histograms, box plots, trend plots), then answered three questions with statistical tests. Numeric variables are not normally distributed, so non-parametric tests were used where needed.\
+   → *Chi-square tests, Poisson regression for count data, non-parametric tests (Kruskal–Wallis, Spearman), matplotlib*
 
 ## Tech stack
 
 Python · pandas · NumPy · SciPy · statsmodels · matplotlib · difflib · gender-guesser
 
-## File
+## Files
 
-Crimes_cleaning_data.ipynb 
+- `4. Crimes_cleaning_data.ipynb` — full analysis notebook
 
+---
 
 # 5. PBC2 Clinical Trial - Survival Analysis and Prognostic Factors - R (in progress)
 
@@ -167,35 +198,31 @@ A survival analysis of a randomized clinical trial with repeated patient visits.
 | What lowers the risk of death? | Cox regression | Higher albumin (HR 0.52 per g/dL) |
 | How well does the model rank patients by risk? | Concordance index | 0.84 (good discrimination) |
 
-## Methodology
+## Approach
 
-1. **Data audit:** checked dimensions, data types, duplicates (0), empty rows (0) and missing values; counted patients and visits per patient.
-2. **Distributions:** histograms and summary tables at baseline and across all visits. Skewed lab values (bilirubin, alkaline phosphatase, SGOT) were log-transformed for modelling.
-3. **Missing data:** checked whether missing values depend on treatment arm, visit number, outcome or disease stage. Cholesterol (42% missing over follow-up) was excluded. Missing alkaline phosphatase and platelet values are linked to disease severity: not MCAR, consistent with MAR (MNAR cannot be excluded).
-4. **Survival comparison:** Kaplan–Meier curves by arm with a log-rank test. Death is the event; patients alive or transplanted at the end of follow-up are censored.
-5. **Variable selection:** 140 deaths for 18 candidate coefficients = 7.8 events per coefficient, below the usual minimum of 10 (Peduzzi et al., 1995). Reduced to 8 coefficients (17.5 events each), with no patient dropped, using:
-   - literature published before this trial, to avoid reusing its own results
-   - correlation checks: Spearman for lab values, Cramér's V for categorical variables (edema dropped, redundant with ascites)
-   - merging small categories (histologic stages 1 and 2)
-6. **Cox regression:** main model on baseline data (treatment, age, bilirubin, albumin, histologic stage, hepatomegaly, ascites), compared with an extended model adding 4 lab values (likelihood-ratio test and AIC, same 308 patients).
+1. **Data audit:** checked dimensions, data types, duplicates (0), empty rows (0) and missing values; counted patients and visits per patient.\
+   → *Longitudinal data handling (one row per visit)*
+2. **Distributions:** histograms and summary tables at baseline and across all visits. Skewed lab values (bilirubin, alkaline phosphatase, SGOT) were log-transformed for modelling.\
+   → *Baseline extraction, tidyverse pipelines, flextable tables*
+3. **Missing data:** checked whether missing values depend on treatment arm, visit number, outcome or disease stage. Cholesterol (42% missing over follow-up) was excluded. Missing alkaline phosphatase and platelet values are linked to disease severity: not MCAR, consistent with MAR (MNAR cannot be excluded).\
+   → *Missing-data mechanisms (MCAR / MAR / MNAR), missingness by visit*
+4. **Survival comparison:** Kaplan–Meier curves by arm with a log-rank test. Death is the event; patients alive or transplanted at the end of follow-up are censored.\
+   → *Kaplan–Meier curves, log-rank test, censoring, comparing treatment arms*
+5. **Variable selection:** 140 deaths for 18 candidate coefficients = 7.8 events per coefficient, below the usual minimum of 10 (Peduzzi et al., 1995). Reduced to 8 coefficients (17.5 events each), with no patient dropped, using literature published before this trial, correlation checks (edema dropped, redundant with ascites) and merging of small categories (histologic stages 1 and 2).\
+   → *Events-per-variable rule, Spearman and Cramér's V, selecting prognostic factors from the literature*
+6. **Cox regression:** main model on baseline data (treatment, age, bilirubin, albumin, histologic stage, hepatomegaly, ascites), compared with an extended model adding 4 lab values (likelihood-ratio test and AIC, same 308 patients).\
+   → *Cox regression, hazard ratios, forest plots, nested model comparison*
 
 ## Coming next
 
 - Interpretation of the main vs extended Cox model comparison
 - Use of the repeated measurements over follow-up, not only baseline values
 
-## Skills demonstrated
-
-- **Survival analysis:** Kaplan–Meier curves, log-rank test, censoring, Cox regression, hazard ratios, forest plots
-- **Statistical rigor:** events-per-variable rule, correlation checks (Spearman, Cramér's V), nested model comparison (likelihood-ratio test, AIC), missing-data mechanisms (MCAR / MAR / MNAR)
-- **Longitudinal data handling:** one row per visit, baseline extraction, missingness by visit
-- **Clinical trial thinking:** comparing treatment arms, deciding how to censor transplanted patients, selecting prognostic factors from the literature
-- **Reproducible reporting:** Quarto, tidyverse pipelines, flextable tables
-
 ## Tech stack
 
 R · tidyverse · survival · survminer · flextable · corrplot · DescTools · Quarto
 
-## File
+## Files
 
-`5. PBC2_clin-trial_survival-IN-PREPARATION.qmd` — analysis code and interpretation (in progress)
+- `5. PBC2_clin-trial_longitudinal-survival-IN-PREPARATION.md` — rendered analysis and interpretation, viewable on GitHub (in progress)
+- `5.-PBC2_clin-trial_longitudinal-survival-IN-PREPARATION_files/` — graphs used by the .md file
